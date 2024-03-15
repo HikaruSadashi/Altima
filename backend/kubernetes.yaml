@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-service
+  template:
+    metadata:
+      labels:
+        app: app-service
+    spec:
+      containers:
+      - name: app-service
+        image: your-registry/app-service:latest
+        env:
+        - name: MEMCACHE_HOST
+          value: memcache-mysql-external-ip  # Replace with the external IP of your combined Memcached/MySQL VM instance
+        - name: MYSQL_HOST
+          value: memcache-mysql-external-ip  # Replace with the external IP of your combined Memcached/MySQL VM instance
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: app-service
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
